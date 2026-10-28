@@ -1,0 +1,1 @@
+import{p as e}from"./_plugin-vue_export-helper-DgCpC6wi.js";function t(){return e({url:"/user/getSubscribe",method:"get"})}function r(){return e({url:"/user/notice/fetch",method:"get"})}function u(){return e({url:"/user/getStat",method:"get"})}function n(){return e({url:"/user/newPeriod",method:"POST"})}export{n as i,t as n,u as r,r as t};

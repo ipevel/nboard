@@ -1,0 +1,1 @@
+var e=0,o="",d=()=>{"undefined"!=typeof document&&(0===e&&(o=document.body.style.overflow,document.body.style.overflow="hidden"),e+=1)},t=()=>{0!==e&&0===(e-=1)&&"undefined"!=typeof document&&(document.body.style.overflow=o)};export{t as n,d as t};

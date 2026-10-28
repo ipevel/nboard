@@ -3476,7 +3476,7 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
   },
   "theme": {
     "title": "主题配置",
-    "description": "主题配置，包括主题色、字体大小等。如果你采用前后分离的方式部署V2board，那么主题配置将不会生效。",
+    "description": "主题配置，包括主题色、字体大小等。如果你采用前后分离的方式部署Nboard，那么主题配置将不会生效。",
     "upload": {
       "button": "上传主题",
       "title": "上传主题",

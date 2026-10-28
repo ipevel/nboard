@@ -3461,7 +3461,7 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
   },
   "theme": {
     "title": "Theme Configuration",
-    "description": "Theme configuration, including theme colors, font sizes, etc. If you deploy V2board in a front-end and back-end separated way, theme configuration will not take effect.",
+    "description": "Theme configuration, including theme colors, font sizes, etc. If you deploy Nboard in a front-end and back-end separated way, theme configuration will not take effect.",
     "upload": {
       "button": "Upload Theme",
       "title": "Upload Theme",
