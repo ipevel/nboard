@@ -1,0 +1,3 @@
+[submodule "public/assets/admin"]
+	path = public/assets/admin
+	url = https://github.com/ipevel/nboard-admin-dist.git
