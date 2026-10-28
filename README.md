@@ -32,38 +32,50 @@ Subscriptions are rendered on demand in eleven client formats, node state is syn
 
 ### Requirements
 
-- PHP 8.2 or newer (the Docker image enforces 8.2.35 or newer)
-- Composer 2
-- MySQL 5.7+ or PostgreSQL, or SQLite for a single-node install
-- Redis, unless you accept the array/sync fallbacks the installer configures
+- Docker Engine with the Compose v2 plugin
+- A host port for the panel (defaults to `7001`)
 
-### Install from source
+Nothing else is needed on the machine: `init.sh` pulls the published image, so there is no PHP, Composer or Node build step.
 
-`init.sh` installs the Composer dependencies, initialises submodules and starts the interactive installer:
+### One command
 
 ```bash
 git clone https://github.com/ipevel/nboard.git
 cd nboard
-bash init.sh
+./init.sh
 ```
 
-The installer writes `.env`, asks for the database and Redis connection details, and creates the administrator account. It ends by printing the administration URL, which is `http(s)://<your-domain>/<secure_path>`.
+The script pulls `ghcr.io/ipevel/nboard:latest`, starts the stack, runs the installer against SQLite and the built-in Redis, waits for the panel to answer, then prints the site URL, the administration URL and the generated administrator credentials. Save those credentials when they appear — the password is shown once.
 
-### Install with Docker Compose
+Options:
 
 ```bash
-git clone https://github.com/ipevel/nboard.git
-cd nboard
+./init.sh --port 8080                  # publish on another host port
+./init.sh --admin you@example.com      # choose the administrator address
+./init.sh --build                      # build the image locally instead of pulling
+./init.sh --install-docker             # install Docker Engine + Compose v2 first
+```
+
+### Re-running
+
+`init.sh` is idempotent. Once `.env` carries the `INSTALLED` flag it skips the installer and only refreshes the container. To update later, run `docker compose pull && docker compose up -d`.
+
+### Manual Compose
+
+To drive the stack yourself:
+
+```bash
 cp compose.sample.yaml compose.yaml
 touch .env
-docker compose run -it --rm \
-    -e ENABLE_SQLITE=true \
-    -e ENABLE_REDIS=true \
+docker compose run --rm \
+    -e ENABLE_SQLITE=1 \
+    -e ENABLE_REDIS=1 \
+    -e ADMIN_ACCOUNT=you@example.com \
     nboard php artisan xboard:install
 docker compose up -d
 ```
 
-The container serves the panel on `http://<server-ip>:7001` through the embedded Caddy process. Keep the `.env` file in place between restarts; the installer rewrites it in place.
+The container serves the panel through its embedded Caddy process on the published port. Keep `.env` in place between restarts; the installer rewrites it in place. MySQL and PostgreSQL installs use the same flow with the corresponding environment variables instead of `ENABLE_SQLITE`.
 
 ## Configuration
 

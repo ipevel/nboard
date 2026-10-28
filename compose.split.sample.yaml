@@ -21,7 +21,7 @@ services:
       - ./.docker/caddy/Caddyfile.split:/etc/caddy/Caddyfile:ro
 
   web:
-    image: ghcr.io/ipevel/nboard:latest
+    image: ${NB_IMAGE:-ghcr.io/ipevel/nboard:latest}
     restart: unless-stopped
     depends_on:
       - redis
@@ -38,7 +38,7 @@ services:
       ENABLE_WS_SERVER: "false"
 
   horizon:
-    image: ghcr.io/ipevel/nboard:latest
+    image: ${NB_IMAGE:-ghcr.io/ipevel/nboard:latest}
     restart: unless-stopped
     depends_on:
       - redis
@@ -50,7 +50,7 @@ services:
       ENABLE_WS_SERVER: "false"
 
   ws-server:
-    image: ghcr.io/ipevel/nboard:latest
+    image: ${NB_IMAGE:-ghcr.io/ipevel/nboard:latest}
     restart: unless-stopped
     depends_on:
       - redis

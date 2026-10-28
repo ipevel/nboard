@@ -1,6 +1,6 @@
 services:
   nboard:
-    image: ghcr.io/ipevel/nboard:latest
+    image: ${NB_IMAGE:-ghcr.io/ipevel/nboard:latest}
     restart: unless-stopped
     network_mode: host
     volumes:
