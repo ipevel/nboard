@@ -7,7 +7,7 @@
 #
 #   ./init.sh                       # pull ghcr.io/ipevel/nboard:latest and start
 #   ./init.sh --port 8080           # publish on another host port
-#   ./init.sh --admin me@site.com   # choose the administrator address
+#   ./init.sh --admin you@example.com   # choose the administrator address
 #   ./init.sh --build               # build the image locally instead of pulling
 #   ./init.sh --install-docker      # install Docker Engine + Compose v2 first
 # ---------------------------------------------------------------------------
