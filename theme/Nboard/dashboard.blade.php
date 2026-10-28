@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no" />
   <title>{{$title}}</title>
   <script type="module" crossorigin src="/theme/{{$theme}}/assets/umi.js"></script>
-</head>
+<style id="nboard-logo-size">img[src*="/logo"]{max-width:96px;max-height:96px;width:auto;height:auto;object-fit:contain}</style></head>
 
 <body>
 

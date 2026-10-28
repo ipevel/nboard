@@ -113,11 +113,12 @@ PY
 
 export NB_IMAGE="$IMAGE"
 
-# --- 5. Start the stack -----------------------------------------------------
-say "Starting the stack..."
-docker compose --env-file .env up -d
+# --- 5. Install first, then start -------------------------------------------
+# Octane boots inside the container and cannot run against an uninstalled tree; if the
+# container starts before the installer has written INSTALLED, supervisor retries and the
+# process lands in FATAL state, and nothing brings it back afterwards. So install against a
+# one-off container, then start the long-lived stack.
 
-# --- 6. First-run install (non-interactive) --------------------------------
 installed="$(grep -cE '^INSTALLED=(1|true)$' .env || true)"
 install_output=""
 
@@ -137,10 +138,13 @@ if [[ "$installed" == "0" ]]; then
     set -e
     printf '%s\n' "$install_output" | tail -20
     [[ $install_status -eq 0 ]] || die "The installer exited with status ${install_status}. Review the output above."
-    grep -qE '^INSTALLED=(1|true)$' .env || die "The installer finished but .env has no INSTALLED flag. Check the container logs: docker compose logs nboard"
+    grep -qE '^INSTALLED=(1|true)$' .env || die "The installer finished but .env has no INSTALLED flag. Check the output above."
 else
     say "Already installed (INSTALLED flag present in .env); skipping the installer."
 fi
+
+say "Starting the stack..."
+docker compose --env-file .env up -d
 
 # --- 7. Health check --------------------------------------------------------
 say "Waiting for the panel to answer..."
