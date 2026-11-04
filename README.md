@@ -58,7 +58,7 @@ Options:
 
 ### Re-running
 
-`init.sh` is idempotent. Once `.env` carries the `INSTALLED` flag it skips the installer and only refreshes the container. To update later, run `docker compose pull && docker compose up -d`.
+`init.sh` is idempotent. Once `.env` carries the `INSTALLED` flag it skips the installer and only refreshes the container. To update later, run `bash update.sh` — see [Updating](#updating).
 
 ### Manual Compose
 
@@ -76,6 +76,40 @@ docker compose up -d
 ```
 
 The container serves the panel through its embedded Caddy process on the published port. Keep `.env` in place between restarts; the installer rewrites it in place. MySQL and PostgreSQL installs use the same flow with the corresponding environment variables instead of `ENABLE_SQLITE`.
+
+## Updating
+
+`update.sh` covers both deployment shapes and picks the right one by itself:
+
+| Deployment | Detected by | What the script does |
+| --- | --- | --- |
+| Git deployment | a `.git` directory | `git fetch`, hard reset to `origin/master`, refresh Composer dependencies, run `php artisan xboard:update` |
+| Compose only | a compose file and no `.git` | pull the published image, recreate the panel services, wait for the panel to answer |
+
+Run it from the deployment directory:
+
+```bash
+bash update.sh              # update the panel
+bash update.sh --theme      # update the panel and the user-facing theme
+bash update.sh --build      # build the image from local sources instead of pulling
+bash update.sh --dry-run    # print the commands without running them
+```
+
+In compose mode the script reads the image from `NB_IMAGE` (environment or `.env`) and falls back to `ghcr.io/ipevel/nboard:latest`. If the compose file references a different local tag, the script re-points that tag at the freshly pulled image instead of rewriting the compose file. It then recreates the services, probes `http://127.0.0.1:${PORT:-7001}` for up to three minutes, and prints the image IDs and container state before and after the update.
+
+`--theme` downloads the theme archive, verifies that it is a valid zip containing `config.json` and `index.html`, moves the current `storage/theme/pinxiaoche` aside as `pinxiaoche.bak-<timestamp>` and restarts the web container. `--build` expects a source tree and runs `docker build` in the script directory.
+
+Environment variables:
+
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `NB_IMAGE` | `ghcr.io/ipevel/nboard:latest` | Image reference to pull or build |
+| `NB_THEME_URL` | `theme-latest` release of `ipevel/cboard-frontend` | Theme archive to install with `--theme` |
+| `PORT` | `7001` | Local port used by the health check |
+
+The script never writes `.env`, `plugins/` or `.docker/.data`; inside `storage/` it only replaces the theme directory. Back up `.env` and the database before updating.
+
+The theme archive is published from a private repository, so `--theme` needs credentials on the host: either run `gh auth login` once or export `GH_TOKEN` / `GITHUB_TOKEN`. Without either, the archive download returns 404; the script then reports that the panel was updated but the theme was not, and exits with code `2`. Pass `NB_THEME_URL=/path/to/pinxiaoche.zip` to install a local archive instead.
 
 ## Configuration
 
