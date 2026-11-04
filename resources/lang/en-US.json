@@ -145,5 +145,10 @@
     "traffic_reset.source.user_access": "User Access",
     "traffic_reset.reset_success": "Traffic reset successful",
     "traffic_reset.reset_failed": "Traffic reset failed, please check logs for details",
-    "traffic_reset.user_cannot_reset": "User cannot reset traffic (user not activated or no valid plan)"
+    "traffic_reset.user_cannot_reset": "User cannot reset traffic (user not activated or no valid plan)",
+    "Not Found": "Not Found",
+    "Invalid captcha purpose": "Invalid captcha purpose",
+    "Invalid captcha id": "Invalid captcha id",
+    "Too many requests": "Too many requests, please try again later",
+    "Image captcha requires the GD extension": "Image captcha requires the GD extension"
 }
