@@ -26,8 +26,53 @@ class CaptchaService
             'turnstile' => $this->verifyTurnstile($request),
             'recaptcha-v3' => $this->verifyRecaptchaV3($request),
             'recaptcha' => $this->verifyRecaptcha($request),
+            'image' => $this->verifyImage($request),
             default => [false, [400, __('Invalid captcha type')]]
         };
+    }
+
+    /**
+     * 验证图片验证码
+     *
+     * @param Request $request
+     * @return array
+     */
+    private function verifyImage(Request $request): array
+    {
+        $id = $request->input('captcha_id');
+        $code = $request->input('captcha_code');
+
+        $valid = app(ImageCaptchaService::class)->verify(
+            is_string($id) ? $id : null,
+            is_string($code) ? $code : null,
+            $this->resolveImagePurpose($request)
+        );
+
+        if (!$valid) {
+            return [false, [400, __('Invalid code is incorrect')]];
+        }
+
+        return [true, null];
+    }
+
+    /**
+     * 确定图片验证码的使用场景
+     */
+    private function resolveImagePurpose(Request $request): string
+    {
+        $purpose = $request->input('purpose');
+        if (is_string($purpose) && in_array($purpose, ImageCaptchaService::PURPOSES, true)) {
+            return $purpose;
+        }
+
+        $action = (string) ($request->route()?->getActionName() ?? '');
+        $path = $request->path();
+
+        if (str_contains($action, 'sendEmailVerify') || str_contains($path, 'sendEmailVerify')) {
+            return 'email';
+        }
+
+        return 'register';
     }
 
     /**
