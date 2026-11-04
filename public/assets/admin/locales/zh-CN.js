@@ -1020,7 +1020,8 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
             "options": {
               "recaptcha": "Google reCAPTCHA v2",
               "recaptcha-v3": "Google reCAPTCHA v3",
-              "turnstile": "Cloudflare Turnstile"
+              "turnstile": "Cloudflare Turnstile",
+              "image": "图片验证码"
             }
           },
           "recaptcha": {
