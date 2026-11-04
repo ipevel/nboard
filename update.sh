@@ -12,16 +12,9 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# 主题包与镜像的默认值，均可通过环境变量覆盖。
+# 镜像的默认值，可通过环境变量覆盖。
 DEFAULT_IMAGE="ghcr.io/ipevel/nboard:latest"
-DEFAULT_THEME_URL="https://github.com/ipevel/cboard-frontend/releases/download/theme-latest/pinxiaoche.zip"
-THEME_NAME="pinxiaoche"
 HEALTH_TIMEOUT=180
-
-# 主题包发布在私有仓库的滚动 release 上：匿名访问会返回 404，必须携带凭据下载。
-THEME_REPO="ipevel/cboard-frontend"
-THEME_TAG="theme-latest"
-THEME_ASSET="pinxiaoche.zip"
 
 say()  { printf '%s\n' "$*"; }
 info() { printf '[update] %s\n' "$*"; }
@@ -47,48 +40,30 @@ usage() {
   镜像部署        目录内没有 .git：拉取镜像、重建容器、等待面板响应。
 
 选项：
-  --theme         更新面板后同时更新用户端主题（默认 pinxiaoche）
   --build         从脚本所在目录的源码本地构建镜像，跳过拉取（目录内需有 Dockerfile）
-  --dry-run       只打印将要执行的命令，不实际执行（含主题下载方式的选择结果）
+  --dry-run       只打印将要执行的命令，不实际执行
   -h, --help      显示本帮助
 
 环境变量：
   NB_IMAGE        镜像地址，默认 ghcr.io/ipevel/nboard:latest
-  NB_THEME_URL    主题包来源。默认取 theme-latest 发布包；指向本地路径或 file:// 地址时直接复制，不联网
-  GH_TOKEN        GitHub 凭据，设置后主题包走 Releases API 鉴权下载（GITHUB_TOKEN 亦可）
   PORT            健康检查使用的本地端口，默认 7001
 
-主题下载：
-  主题包发布在私有仓库 ipevel/cboard-frontend 的 theme-latest 滚动 release 上，匿名下载会返回 404，
-  因此需要鉴权。脚本按下列顺序选择下载方式，并打印实际使用的方式：
-    1. NB_THEME_URL 指向本地路径或 file:// 地址：直接复制该文件，不联网；
-    2. 设置了 GH_TOKEN 或 GITHUB_TOKEN：走 GitHub Releases API 带 Authorization 头下载；
-    3. gh 命令存在且 gh auth status 成功：用 gh release download；
-    4. 以上都不满足：回退 curl/wget 直接下载（仅适用于公开地址）。
-  鉴权缺失或返回 404 时，脚本会提示先 gh auth login 或设置 GH_TOKEN。
-
 退出码：
-  0   面板与主题全部更新成功
-  1   面板更新失败
-  2   面板更新成功，但主题更新失败
+  0   更新成功
+  1   更新失败
 
 示例：
   bash update.sh
-  bash update.sh --theme
   bash update.sh --build
-  GH_TOKEN=xxx bash update.sh --theme
-  NB_THEME_URL=/root/pinxiaoche.zip bash update.sh --theme --dry-run
   NB_IMAGE=ghcr.io/ipevel/nboard:new bash update.sh --dry-run
 EOF
 }
 
-DO_THEME=0
 DO_BUILD=0
 DRY_RUN=0
 
 while (( $# > 0 )); do
   case "$1" in
-    --theme)   DO_THEME=1; shift ;;
     --build)   DO_BUILD=1; shift ;;
     --dry-run) DRY_RUN=1; shift ;;
     -h|--help) usage; exit 0 ;;
@@ -347,315 +322,6 @@ update_from_image() {
 }
 
 # ---------------------------------------------------------------------------
-# 主题更新（--theme）
-# ---------------------------------------------------------------------------
-THEME_TMP=""
-cleanup() {
-  if [[ -n "$THEME_TMP" && -d "$THEME_TMP" ]]; then
-    rm -rf "$THEME_TMP"
-  fi
-}
-trap cleanup EXIT
-
-restart_web_for_theme() {
-  local running svc
-
-  if [[ -z "$COMPOSE_FILE" ]]; then
-    info "当前目录没有 compose 文件，主题将在面板下次启动时生效。"
-    return 0
-  fi
-  if ! docker compose version >/dev/null 2>&1; then
-    info "未检测到 Docker Compose，主题将在面板下次启动时生效。"
-    return 0
-  fi
-
-  running="$(docker compose -f "$COMPOSE_FILE" ps --services --filter status=running 2>/dev/null || true)"
-  for svc in web nboard; do
-    if printf '%s\n' "$running" | grep -qx "$svc"; then
-      info "重启 $svc 容器以清缓存并加载新主题。"
-      run docker compose -f "$COMPOSE_FILE" restart "$svc"
-      return 0
-    fi
-  done
-
-  info "未检测到运行中的 web 容器，主题将在面板下次启动时生效。"
-}
-
-# ---------------------------------------------------------------------------
-# 主题包下载
-# ---------------------------------------------------------------------------
-# 主题包发布在私有仓库的滚动 release（$THEME_REPO 的 $THEME_TAG）上：仓库私有，
-# 匿名请求该下载地址会返回 404 而不是 403，因此必须携带凭据。判断依据是凭据本身，
-# 而不是地址形式，下载方式按凭据可得性从强到弱选择：
-#   local  NB_THEME_URL 指向本地文件或 file:// 地址，直接复制，不联网；
-#   api    存在 GH_TOKEN 或 GITHUB_TOKEN，走 Releases API 并带 Authorization 头；
-#   gh     gh 命令可用且 gh auth status 成功，用 gh release download；
-#   direct 以上都不满足时回退 curl/wget，仅适用于公开镜像地址。
-# 能读到 token 时不依赖 gh 的本地登录态，避免在无人值守环境触发交互式登录。
-
-# 主题步骤的失败出口：面板已经更新完成，这里只报错并返回非零，由主流程统一转成退出码 2。
-theme_fail() {
-  printf '[update] 错误：%s\n' "$*" >&2
-}
-
-# 判断来源类型：只有带 scheme 且不是 file:// 的才算远端地址，其余按本地路径处理。
-theme_is_local_source() {
-  local url="$1"
-  [[ "$url" == file://* ]] && return 0
-  [[ "$url" =~ ^[A-Za-z][A-Za-z0-9+.-]*:// ]] && return 1
-  return 0
-}
-
-theme_token() {
-  if [[ -n "${GH_TOKEN:-}" ]]; then
-    printf '%s\n' "$GH_TOKEN"
-  elif [[ -n "${GITHUB_TOKEN:-}" ]]; then
-    printf '%s\n' "$GITHUB_TOKEN"
-  fi
-}
-
-theme_gh_ready() {
-  command -v gh >/dev/null 2>&1 && gh auth status >/dev/null 2>&1
-}
-
-select_theme_method() {
-  local url="$1"
-  if theme_is_local_source "$url"; then
-    printf 'local\n'
-  elif [[ -n "$(theme_token)" ]]; then
-    printf 'api\n'
-  elif theme_gh_ready; then
-    printf 'gh\n'
-  else
-    printf 'direct\n'
-  fi
-}
-
-theme_method_label() {
-  case "$1" in
-    local)  printf '本地文件（NB_THEME_URL 指向本地 zip，不联网）' ;;
-    api)    printf 'GitHub Releases API（携带 GH_TOKEN/GITHUB_TOKEN 鉴权）' ;;
-    gh)     printf 'gh release download（使用 gh 已登录的凭据）' ;;
-    direct) printf 'curl/wget 直接下载（仅适用于公开地址）' ;;
-    *)      printf '%s' "$1" ;;
-  esac
-}
-
-# 下载失败的可操作提示：私有仓库、凭据缺失、离线替代方案三件事一次说清。
-theme_auth_hint() {
-  warn "主题仓库 $THEME_REPO 为私有仓库，匿名访问会返回 404。"
-  warn "请先执行 gh auth login 登录，或设置 GH_TOKEN/GITHUB_TOKEN 环境变量后重试。"
-  warn "也可以先把主题 zip 放到本机，再用 NB_THEME_URL=/绝对路径/$THEME_ASSET 离线安装。"
-}
-
-# 从 Releases API 的 JSON 中取出指定资产名的 id：有 jq 时直接用，缺失时把 JSON 压成单行后按资产对象切分。
-theme_asset_id() {
-  local name="$1" json
-  json="$(cat)"
-  if command -v jq >/dev/null 2>&1; then
-    printf '%s\n' "$json" | jq -r --arg n "$name" '.assets[]? | select(.name == $n) | .id' | head -n 1 || true
-    return 0
-  fi
-  # 资产对象以 {"url" 开头；压成单行后按此切分，再取对象内第一个 "id":<数字>，
-  # 这样不会误取 release 自身的 id（它位于 assets 数组之前）。
-  printf '%s' "$json" | tr -d '\n' | awk -v name="$name" '
-    {
-      gsub(/\{"url"/, "\n{\"url\"")
-      n = split($0, objs, "\n")
-      for (i = 1; i <= n; i++) {
-        if (index(objs[i], "\"name\":\"" name "\"") == 0) continue
-        if (match(objs[i], /"id":[0-9]+/)) {
-          print substr(objs[i], RSTART + 5, RLENGTH - 5)
-          exit
-        }
-      }
-    }'
-}
-
-download_theme_local() {
-  local url="$1" out="$2" path
-
-  path="$url"
-  [[ "$path" == file://* ]] && path="${path#file://}"
-  [[ -f "$path" ]] || { theme_fail "本地主题包不存在：$path"; return 1; }
-  cp -- "$path" "$out" || { theme_fail "复制本地主题包失败：$path"; return 1; }
-}
-
-download_theme_via_api() {
-  local out="$1" token api_base asset_id meta code
-
-  token="$(theme_token)"
-  api_base="https://api.github.com/repos/$THEME_REPO"
-
-  # 先按 tag 取发布信息确认资产存在，再按资产 id 下载，避免拼接下载地址时猜错。
-  if ! meta="$(curl -fsSL --retry 2 --connect-timeout 20 \
-      -H "Authorization: Bearer $token" \
-      -H "Accept: application/vnd.github+json" \
-      -H "X-GitHub-Api-Version: 2022-11-28" \
-      "$api_base/releases/tags/$THEME_TAG")"; then
-    theme_fail "读取 $THEME_REPO 的 $THEME_TAG 发布信息失败。"
-    theme_auth_hint
-    return 1
-  fi
-
-  asset_id="$(printf '%s' "$meta" | theme_asset_id "$THEME_ASSET")"
-  if [[ -z "$asset_id" ]]; then
-    theme_fail "$THEME_TAG 发布中没有资产 $THEME_ASSET。"
-    theme_auth_hint
-    return 1
-  fi
-  info "资产 $THEME_ASSET 的 id：$asset_id"
-
-  # 下载二进制资产必须声明 application/octet-stream，否则 API 返回的是 JSON 元数据。
-  code="$(curl -sSL --retry 2 --connect-timeout 20 \
-      -H "Authorization: Bearer $token" \
-      -H "Accept: application/octet-stream" \
-      -w '%{http_code}' \
-      -o "$out" \
-      "$api_base/releases/assets/$asset_id")" || true
-  if [[ "$code" != "200" ]]; then
-    theme_fail "下载资产失败（HTTP ${code:-无响应}）。"
-    theme_auth_hint
-    return 1
-  fi
-}
-
-download_theme_via_gh() {
-  local dir="$1" out="$2"
-
-  # --clobber 允许覆盖同名旧文件，重复执行不会因文件已存在而失败。
-  if ! gh release download "$THEME_TAG" \
-      --repo "$THEME_REPO" \
-      --pattern "$THEME_ASSET" \
-      --dir "$dir" \
-      --clobber; then
-    theme_fail "gh release download 下载主题包失败。"
-    theme_auth_hint
-    return 1
-  fi
-  [[ -f "$dir/$THEME_ASSET" ]] || { theme_fail "gh 下载完成但未找到 $dir/$THEME_ASSET。"; return 1; }
-  mv "$dir/$THEME_ASSET" "$out" || { theme_fail "整理下载文件失败。"; return 1; }
-}
-
-download_theme_direct() {
-  local url="$1" out="$2" code
-
-  if command -v curl >/dev/null 2>&1; then
-    # 不用 -f，以便拿到 HTTP 状态码；404 正是私有仓库对匿名请求的典型返回。
-    code="$(curl -sSL --retry 2 --connect-timeout 20 -w '%{http_code}' -o "$out" "$url")" || true
-    if [[ "$code" != "200" ]]; then
-      theme_fail "主题包下载失败（HTTP ${code:-无响应}）：$url"
-      [[ "$code" == "404" ]] && warn "HTTP 404：私有仓库对未鉴权的匿名请求通常返回 404。"
-      theme_auth_hint
-      return 1
-    fi
-    return 0
-  fi
-
-  if command -v wget >/dev/null 2>&1; then
-    if ! wget -q -O "$out" "$url"; then
-      theme_fail "主题包下载失败：$url"
-      theme_auth_hint
-      return 1
-    fi
-    return 0
-  fi
-
-  theme_fail "未找到 curl 或 wget，无法下载主题包。"
-  return 1
-}
-
-update_theme() {
-  local url zip extract src target backup owner_ref owner method
-
-  url="${NB_THEME_URL:-$DEFAULT_THEME_URL}"
-  command -v unzip >/dev/null 2>&1 || { theme_fail "未找到 unzip 命令，无法校验和展开主题包。"; return 1; }
-
-  info "准备更新主题：$THEME_NAME"
-  info "主题包地址：$url"
-  method="$(select_theme_method "$url")"
-  info "主题下载方式：$(theme_method_label "$method")"
-
-  if (( DRY_RUN )); then
-    case "$method" in
-      local)
-        say "[dry-run] 复制本地文件 $url 到临时目录（不联网）" ;;
-      api)
-        say "[dry-run] curl -H 'Authorization: Bearer \$GH_TOKEN' -H 'Accept: application/octet-stream' -o 主题包 https://api.github.com/repos/$THEME_REPO/releases/assets/<id>" ;;
-      gh)
-        say "[dry-run] gh release download $THEME_TAG --repo $THEME_REPO --pattern $THEME_ASSET --dir <临时目录> --clobber" ;;
-      direct)
-        say "[dry-run] curl -sSL -o 主题包 $url" ;;
-    esac
-    say "[dry-run] unzip -t 校验主题包，并确认包含 config.json 与 index.html"
-    say "[dry-run] 将 storage/theme/$THEME_NAME 重命名为 storage/theme/$THEME_NAME.bak-<时间戳>"
-    say "[dry-run] 将新主题内容放到 storage/theme/$THEME_NAME"
-    say "[dry-run] 按现有主题目录属主修正新主题目录属主"
-    say "[dry-run] 若 web 容器在运行则重启"
-    return 0
-  fi
-
-  THEME_TMP="$(mktemp -d "${TMPDIR:-/tmp}/nboard-theme.XXXXXX")"
-  zip="$THEME_TMP/theme.zip"
-  extract="$THEME_TMP/extract"
-
-  case "$method" in
-    local)  download_theme_local "$url" "$zip" ;;
-    api)    download_theme_via_api "$zip" ;;
-    gh)     download_theme_via_gh "$THEME_TMP" "$zip" ;;
-    direct) download_theme_direct "$url" "$zip" ;;
-    *)      theme_fail "未知的下载方式：$method"; return 1 ;;
-  esac || return 1
-
-  unzip -tqq "$zip" >/dev/null 2>&1 || { theme_fail "主题包不是合法的 zip 文件：$url"; return 1; }
-  mkdir -p "$extract"
-  unzip -qq "$zip" -d "$extract" || { theme_fail "主题包解压失败。"; return 1; }
-
-  # 允许压缩包内直接是主题目录，或只有一层同名目录。
-  src="$extract"
-  if [[ ! -f "$src/config.json" ]]; then
-    local candidates=() dir
-    while IFS= read -r dir; do
-      candidates+=("$dir")
-    done < <(find "$extract" -maxdepth 2 -name config.json -printf '%h\n' 2>/dev/null)
-    if (( ${#candidates[@]} == 1 )); then
-      src="${candidates[0]}"
-    else
-      theme_fail "主题包根目录下没有 config.json，无法确认主题结构。"
-      return 1
-    fi
-  fi
-  [[ -f "$src/index.html" ]] || { theme_fail "主题包缺少 index.html，无法确认主题结构。"; return 1; }
-
-  mkdir -p storage/theme || { theme_fail "无法创建 storage/theme 目录。"; return 1; }
-  target="storage/theme/$THEME_NAME"
-
-  if [[ -e "$target" ]]; then
-    backup="$target.bak-$(date +%Y%m%d-%H%M%S)"
-    mv "$target" "$backup" || { theme_fail "旧主题备份失败：$target"; return 1; }
-    info "旧主题已备份：$backup"
-  fi
-
-  mv "$src" "$target" || { theme_fail "新主题落位失败：$target"; return 1; }
-  info "新主题已就位：$target"
-
-  if [[ "${EUID}" -eq 0 ]]; then
-    # 以现有主题目录的属主为准，保证与同目录下其他主题一致；主题目录不存在时退回 storage 或部署目录。
-    owner_ref="storage/theme"
-    [[ -d "$owner_ref" ]] || owner_ref="storage"
-    [[ -d "$owner_ref" ]] || owner_ref="."
-    owner="$(stat -c '%u:%g' -- "$owner_ref")"
-    if ! chown -R "$owner" -- "$target"; then
-      theme_fail "修正 $target 的属主失败（参照 $owner_ref）。"
-      return 1
-    fi
-    info "已将 $target 的属主设置为 $owner（参照 $owner_ref）"
-  fi
-
-  restart_web_for_theme
-}
-
-# ---------------------------------------------------------------------------
 # 主流程
 # ---------------------------------------------------------------------------
 if (( DO_BUILD )); then
@@ -667,14 +333,6 @@ else
   update_from_image
 fi
 
-if (( DO_THEME )); then
-  # 面板更新已经完成，主题失败不回收面板成果：单独提示并以退出码 2 结束，便于上层区分。
-  if ! update_theme; then
-    say ""
-    printf '[update] 面板已更新，主题未更新。\n' >&2
-    exit 2
-  fi
-fi
 
 say ""
 info "更新流程结束。"

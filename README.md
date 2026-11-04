@@ -90,53 +90,21 @@ Run it from the deployment directory:
 
 ```bash
 bash update.sh              # update the panel
-bash update.sh --theme      # update the panel and the user-facing theme
 bash update.sh --build      # build the image from local sources instead of pulling
 bash update.sh --dry-run    # print the commands without running them
 ```
 
 In compose mode the script reads the image from `NB_IMAGE` (environment or `.env`) and falls back to `ghcr.io/ipevel/nboard:latest`. If the compose file references a different local tag, the script re-points that tag at the freshly pulled image instead of rewriting the compose file. It then recreates the services, probes `http://127.0.0.1:${PORT:-7001}` for up to three minutes, and prints the image IDs and container state before and after the update.
 
-`--theme` downloads the theme archive, verifies that it is a valid zip containing `config.json` and `index.html`, moves the current `storage/theme/pinxiaoche` aside as `pinxiaoche.bak-<timestamp>` and restarts the web container. `--build` expects a source tree and runs `docker build` in the script directory.
+`--build` expects a source tree and runs `docker build` in the script directory.
 
 Environment variables:
 
 | Variable | Default | Purpose |
 | --- | --- | --- |
 | `NB_IMAGE` | `ghcr.io/ipevel/nboard:latest` | Image reference to pull or build |
-| `NB_THEME_URL` | `theme-latest` release of `ipevel/cboard-frontend` | Theme archive to install with `--theme` |
 | `PORT` | `7001` | Local port used by the health check |
 
-The script never writes `.env`, `plugins/` or `.docker/.data`; inside `storage/` it only replaces the theme directory. Back up `.env` and the database before updating.
-
-The theme archive is published from a private repository, so `--theme` needs credentials on the host: either run `gh auth login` once or export `GH_TOKEN` / `GITHUB_TOKEN`. Without either, the archive download returns 404; the script then reports that the panel was updated but the theme was not, and exits with code `2`. Pass `NB_THEME_URL=/path/to/pinxiaoche.zip` to install a local archive instead.
-
-## Configuration
-
-Runtime configuration lives in `.env`, created by the installer from `.env.example`:
-
-| Key | Purpose |
-| --- | --- |
-| `APP_NAME` | Display name used in page titles and outbound mail |
-| `APP_URL` | Public base URL; also used for the safe-mode host check |
-| `DB_CONNECTION`, `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` | Primary datastore |
-| `REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD` | Cache, queue and session backend |
-| `CACHE_DRIVER`, `QUEUE_CONNECTION`, `SESSION_DRIVER` | Cache/queue/session drivers; both default to Redis |
-| `ENABLE_AUTO_BACKUP_AND_UPDATE`, `GOOGLE_CLOUD_KEY_FILE`, `GOOGLE_CLOUD_STORAGE_BUCKET` | Optional Google Cloud Storage backups |
-
-Site-level settings — application name, description, logo, theme, subscription path, administration path and mail templates — are stored in the `settings` table and edited from the administration console. Values entered there override the built-in defaults.
-
-The Compose templates accept `RESOURCE_PROFILE` (`minimal`, `balanced`, `performance`, `auto`) to size the Octane and Horizon worker pools, and `ENABLE_CADDY`, `ENABLE_HORIZON`, `ENABLE_WEB`, `ENABLE_WS_SERVER` to select which supervisors start in split deployments.
-
-The installer and upgrade commands are `php artisan xboard:install` and `php artisan xboard:update`; the command names are part of the deployment contract and are unchanged.
-
-## Documentation
-
-- [Deploy with Docker Compose](docs/en/installation/docker-compose.md)
-- [Deploy with 1Panel](docs/en/installation/1panel.md)
-- [Deploy with aaPanel](docs/en/installation/aapanel.md)
-- [Deploy with aaPanel and Docker](docs/en/installation/aapanel-docker.md)
-
-## License
+The script never writes `.env`, `plugins/`, `storage/` or `.docker/.data`. Back up `.env` and the database before updating.
 
 Released under the [MIT License](LICENSE). Copyright (c) 2026 ipevel.
