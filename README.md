@@ -58,7 +58,7 @@ Options:
 
 ### Re-running
 
-`init.sh` is idempotent. Once `.env` carries the `INSTALLED` flag it skips the installer and only refreshes the container. To update later, run `docker compose pull && docker compose up -d`.
+`init.sh` is idempotent. Once `.env` carries the `INSTALLED` flag it skips the installer and only refreshes the container. To update later, run `bash update.sh` — see [Updating](#updating).
 
 ### Manual Compose
 
@@ -77,32 +77,34 @@ docker compose up -d
 
 The container serves the panel through its embedded Caddy process on the published port. Keep `.env` in place between restarts; the installer rewrites it in place. MySQL and PostgreSQL installs use the same flow with the corresponding environment variables instead of `ENABLE_SQLITE`.
 
-## Configuration
+## Updating
 
-Runtime configuration lives in `.env`, created by the installer from `.env.example`:
+`update.sh` covers both deployment shapes and picks the right one by itself:
 
-| Key | Purpose |
-| --- | --- |
-| `APP_NAME` | Display name used in page titles and outbound mail |
-| `APP_URL` | Public base URL; also used for the safe-mode host check |
-| `DB_CONNECTION`, `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` | Primary datastore |
-| `REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD` | Cache, queue and session backend |
-| `CACHE_DRIVER`, `QUEUE_CONNECTION`, `SESSION_DRIVER` | Cache/queue/session drivers; both default to Redis |
-| `ENABLE_AUTO_BACKUP_AND_UPDATE`, `GOOGLE_CLOUD_KEY_FILE`, `GOOGLE_CLOUD_STORAGE_BUCKET` | Optional Google Cloud Storage backups |
+| Deployment | Detected by | What the script does |
+| --- | --- | --- |
+| Git deployment | a `.git` directory | `git fetch`, hard reset to `origin/master`, refresh Composer dependencies, run `php artisan xboard:update` |
+| Compose only | a compose file and no `.git` | pull the published image, recreate the panel services, wait for the panel to answer |
 
-Site-level settings — application name, description, logo, theme, subscription path, administration path and mail templates — are stored in the `settings` table and edited from the administration console. Values entered there override the built-in defaults.
+Run it from the deployment directory:
 
-The Compose templates accept `RESOURCE_PROFILE` (`minimal`, `balanced`, `performance`, `auto`) to size the Octane and Horizon worker pools, and `ENABLE_CADDY`, `ENABLE_HORIZON`, `ENABLE_WEB`, `ENABLE_WS_SERVER` to select which supervisors start in split deployments.
+```bash
+bash update.sh              # update the panel
+bash update.sh --build      # build the image from local sources instead of pulling
+bash update.sh --dry-run    # print the commands without running them
+```
 
-The installer and upgrade commands are `php artisan xboard:install` and `php artisan xboard:update`; the command names are part of the deployment contract and are unchanged.
+In compose mode the script reads the image from `NB_IMAGE` (environment or `.env`) and falls back to `ghcr.io/ipevel/nboard:latest`. If the compose file references a different local tag, the script re-points that tag at the freshly pulled image instead of rewriting the compose file. It then recreates the services, probes `http://127.0.0.1:${PORT:-7001}` for up to three minutes, and prints the image IDs and container state before and after the update.
 
-## Documentation
+`--build` expects a source tree and runs `docker build` in the script directory.
 
-- [Deploy with Docker Compose](docs/en/installation/docker-compose.md)
-- [Deploy with 1Panel](docs/en/installation/1panel.md)
-- [Deploy with aaPanel](docs/en/installation/aapanel.md)
-- [Deploy with aaPanel and Docker](docs/en/installation/aapanel-docker.md)
+Environment variables:
 
-## License
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `NB_IMAGE` | `ghcr.io/ipevel/nboard:latest` | Image reference to pull or build |
+| `PORT` | `7001` | Local port used by the health check |
+
+The script never writes `.env`, `plugins/`, `storage/` or `.docker/.data`. Back up `.env` and the database before updating.
 
 Released under the [MIT License](LICENSE). Copyright (c) 2026 ipevel.
