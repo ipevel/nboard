@@ -143,6 +143,15 @@ else
     fi
 fi
 
+# Rebuild the compiled views on every boot. The theme bundle carries a content hash in
+# its filename, so a previous release's compiled view would keep pointing the entry HTML
+# at a bundle that no longer exists: a 404 for the app entry, a blank page for the user,
+# and a perfectly healthy API. Clearing here keeps the shell and the shipped assets in step.
+if grep -qE '^INSTALLED=(1|true)$' /www/.env 2>/dev/null; then
+    php /www/artisan view:clear >/dev/null 2>&1 || \
+        echo "[entrypoint] WARNING: view:clear failed; a stale view cache may break the front end." >&2
+fi
+
 echo "[entrypoint] Starting services (caddy=${ENABLE_CADDY} web=${ENABLE_WEB} horizon=${ENABLE_HORIZON} ws=${ENABLE_WS_SERVER})..."
 # Drop stale Octane/WorkerMan state files so the new master does not signal
 # PIDs left over from a previous container run (causes Swoole kill EPERM).

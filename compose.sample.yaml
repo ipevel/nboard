@@ -20,6 +20,8 @@ services:
       - ./storage/logs:/www/storage/logs
       - ./storage/theme:/www/storage/theme
       - ./plugins:/www/plugins
+      # Keep the front-end theme editable without rebuilding the image.
+      - ./theme:/www/theme
       - nboard-redis-data:/data
     environment:
       - RESOURCE_PROFILE=balanced      # minimal | balanced | performance | auto

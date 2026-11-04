@@ -31,6 +31,8 @@ services:
       - ./storage/logs:/www/storage/logs
       - ./storage/theme:/www/storage/theme
       - ./plugins:/www/plugins
+      # Keep the front-end theme editable without rebuilding the image.
+      - ./theme:/www/theme
     environment:
       docker: "true"
       ENABLE_CADDY: "false"
