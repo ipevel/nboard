@@ -26,7 +26,7 @@
         }
       })();
     </script>
-    
+    <script src="./config.ff13e7aeb94e.js"></script>
     <script>
       /*
        * 站点品牌引导：在应用包加载前先取一次后台站点配置，让标签标题与图标在首帧就跟着后台，
@@ -50,12 +50,9 @@
           .then(function (json) {
             var d = (json && json.data) || {};
 
-            document.title = d.app_name || 'Nboard';
+            if (d.app_name) document.title = d.app_name;
 
-            // 后台未配置 logo 时回退到主题内置的品牌图标
-            var iconHref = d.logo || './images/logo.png';
-
-            (function () {
+            if (d.logo) {
               var link = document.querySelector('link[rel~="icon"]');
 
               if (!link) {
@@ -65,8 +62,8 @@
               }
 
               link.removeAttribute('type');
-              link.setAttribute('href', iconHref);
-            })();
+              link.setAttribute('href', d.logo);
+            }
 
             return json;
           })
@@ -76,14 +73,14 @@
       })();
     </script>
     <style>@media (width>=769px){html,body,div,main,section,article,aside,nav{scrollbar-width:none!important;-ms-overflow-style:none!important}::-webkit-scrollbar{background:0 0!important;width:0!important;height:0!important;display:none!important}::-webkit-scrollbar-button{background:0 0!important;width:0!important;height:0!important;display:none!important}::-webkit-scrollbar-track{background:0 0!important;width:0!important;height:0!important;display:none!important}::-webkit-scrollbar-track-piece{background:0 0!important;width:0!important;height:0!important;display:none!important}::-webkit-scrollbar-thumb{background:0 0!important;width:0!important;height:0!important;display:none!important}::-webkit-scrollbar-corner{background:0 0!important;width:0!important;height:0!important;display:none!important}::-webkit-resizer{background:0 0!important;width:0!important;height:0!important;display:none!important}}html,body{width:100%;height:100%}@media (width>=769px){*{scrollbar-width:none!important;-ms-overflow-style:none!important}}html,body{width:100%;height:100%;margin:0;padding:0;overflow-x:hidden}#app{width:100%;height:100%}html.preloader-active,body.preloader-active{overflow:hidden!important}</style>
-    <script type="module" crossorigin src="./static/index-BgkpRHdI.js"></script>
-      <link rel="modulepreload" crossorigin href="./static/vue-CZVGrrJU.js" />
+    <script type="module" crossorigin src="./static/index-B0Dw4bFU.js"></script>
+      <link rel="modulepreload" crossorigin href="./static/vue-8rFDkiXJ.js" />
     <script>
         // 已登录时把面板主包与共享分块也加入预载，与入口包并行下载，省掉串行往返
         (function () {
           try {
             if (!localStorage.getItem('token')) return;
-            var urls = ['./static/appInit-DKedKfuh.js', './static/vendor-AOGVQNaS.js', './static/icons-DSM2tnkg.js'];
+            var urls = ['./static/appInit-oB6G1J4G.js', './static/vendor-D3jaH8no.js', './static/icons-NtJqZEeL.js'];
             urls.forEach(function (href) {
               var link = document.createElement('link');
               link.rel = 'modulepreload';

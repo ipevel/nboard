@@ -76,14 +76,14 @@
       })();
     </script>
     <style>@media (width>=769px){html,body,div,main,section,article,aside,nav{scrollbar-width:none!important;-ms-overflow-style:none!important}::-webkit-scrollbar{background:0 0!important;width:0!important;height:0!important;display:none!important}::-webkit-scrollbar-button{background:0 0!important;width:0!important;height:0!important;display:none!important}::-webkit-scrollbar-track{background:0 0!important;width:0!important;height:0!important;display:none!important}::-webkit-scrollbar-track-piece{background:0 0!important;width:0!important;height:0!important;display:none!important}::-webkit-scrollbar-thumb{background:0 0!important;width:0!important;height:0!important;display:none!important}::-webkit-scrollbar-corner{background:0 0!important;width:0!important;height:0!important;display:none!important}::-webkit-resizer{background:0 0!important;width:0!important;height:0!important;display:none!important}}html,body{width:100%;height:100%}@media (width>=769px){*{scrollbar-width:none!important;-ms-overflow-style:none!important}}html,body{width:100%;height:100%;margin:0;padding:0;overflow-x:hidden}#app{width:100%;height:100%}html.preloader-active,body.preloader-active{overflow:hidden!important}</style>
-    <script type="module" crossorigin src="/theme/Nboard/assets/static-generated/index-BgkpRHdI.js"></script>
-      <link rel="modulepreload" crossorigin href="/theme/Nboard/assets/static-generated/vue-CZVGrrJU.js" />
+    <script type="module" crossorigin src="/theme/Nboard/assets/static-generated/index-B0Dw4bFU.js"></script>
+      <link rel="modulepreload" crossorigin href="/theme/Nboard/assets/static-generated/vue-8rFDkiXJ.js" />
     <script>
         // 已登录时把面板主包与共享分块也加入预载，与入口包并行下载，省掉串行往返
         (function () {
           try {
             if (!localStorage.getItem('token')) return;
-            var urls = ['/theme/Nboard/assets/static-generated/appInit-DKedKfuh.js', '/theme/Nboard/assets/static-generated/vendor-AOGVQNaS.js', '/theme/Nboard/assets/static-generated/icons-DSM2tnkg.js'];
+            var urls = ['/theme/Nboard/assets/static-generated/appInit-oB6G1J4G.js', '/theme/Nboard/assets/static-generated/vendor-D3jaH8no.js', '/theme/Nboard/assets/static-generated/icons-NtJqZEeL.js'];
             urls.forEach(function (href) {
               var link = document.createElement('link');
               link.rel = 'modulepreload';
