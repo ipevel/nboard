@@ -79,6 +79,10 @@ class Plugin extends AbstractPlugin implements PaymentInterface
 
     public function notify($params): array|bool
     {
+        // Payment gateways may send blank callback fields (e.g. sitename=), which
+        // Laravel parses as null. Drop them before type checks and signing to match
+        // the EPay signature spec.
+        $params = array_filter($params, function ($v) { return $v !== '' && $v !== null; });
         $secret = $this->getConfig('key');
         if (!is_string($secret) || trim($secret) === '' || !is_array($params)) {
             return false;
