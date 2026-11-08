@@ -106,6 +106,4 @@ deployment and for the security of the data they store.
 
 Issues and pull requests are welcome.
 
-## Star History
 
-[![Stargazers over time](https://starchart.cc/ipevel/nboard.svg)](https://starchart.cc/ipevel/nboard)
