@@ -2,108 +2,110 @@
 
 <div align="center">
 
-[![Telegram](https://img.shields.io/badge/Telegram-Channel-blue)](https://t.me/NboardOfficial)
 ![PHP](https://img.shields.io/badge/PHP-8.2.35+-green.svg)
-![MySQL](https://img.shields.io/badge/MySQL-5.7+-blue.svg)
+![Database](https://img.shields.io/badge/SQLite%20%2F%20MySQL-blue.svg)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 </div>
 
-## 📖 Introduction
+## Introduction
 
-Nboard is a modern panel system built on Laravel 11, focusing on providing a clean and efficient user experience.
+Nboard is a proxy service panel built on Laravel 12 and Octane. It provides a
+Vue 3 user portal, a React admin console, a plugin system, and a Docker-based
+deployment path that runs from a published image without a local PHP toolchain.
 
-## ✨ Features
+## Repository layout
 
-- 🚀 Built with Laravel 12 + Octane for significant performance gains
-- 🎨 Redesigned admin interface (React + Shadcn UI)
-- 📱 Modern user frontend (Vue3 + TypeScript)
-- 🐳 Ready-to-use Docker deployment solution
-- 🎯 Optimized system architecture for better maintainability
+This repository uses two branches with different purposes:
 
-## 🚀 Quick Start
+| Branch | Contents | Use it for |
+|---|---|---|
+| `master` | Application source, themes, plugins, and the image build definition | Development and building the image |
+| `compose` | `compose.yaml`, deployment templates, and `.env.example` | Running a deployment |
+
+The Quick Start below clones the `compose` branch. Cloning `master` will not
+give you a `compose.yaml`; the files on `master` are the application source.
+
+## Quick Start
+
+Requires Docker Engine and Docker Compose v2 on the host. No PHP, Composer, or
+Node.js is needed locally.
 
 ```bash
-git clone -b compose --depth 1 https://github.com/ipevel/nboard && \
-cd Nboard && \
+git clone -b compose --depth 1 https://github.com/ipevel/nboard.git && \
+cd nboard && \
 docker compose run -it --rm \
     -e ENABLE_SQLITE=true \
     -e ENABLE_REDIS=true \
-    -e ADMIN_ACCOUNT=admin@demo.com \
+    -e ADMIN_ACCOUNT=admin@example.com \
     nboard php artisan nboard:install && \
 docker compose up -d
 ```
 
-> After installation, visit: http://SERVER_IP:7001  
-> ⚠️ Make sure to save the admin credentials shown during installation
+The installer prints a one-time administrator password and the admin path.
+Save both. Then open `http://SERVER_IP:7001` for the user portal.
 
-## 📖 Documentation
+`ENABLE_SQLITE=true` uses an embedded database, so no separate MySQL service is
+required. For MySQL, omit that variable and set the database connection in
+`.env` before installing. See
+[Deploy with Docker Compose](./docs/en/installation/docker-compose.md) for both
+variants.
 
-### 🔄 Upgrade Notice
-> 🚨 **Important:** This version involves significant changes. Please strictly follow the upgrade documentation and backup your database before upgrading. Note that upgrading and migration are different processes, do not confuse them.
+## Features
 
-### Development Guides
-- [Plugin Development Guide](./docs/en/development/plugin-development-guide.md) - Complete guide for developing NBoard plugins
+- Laravel 12 and Octane for the HTTP runtime
+- React admin console and Vue 3 user portal
+- Prebuilt container image, no local build required
+- Plugin system with bundled payment, notification, and gateway plugins
+- SQLite or MySQL storage, Redis for cache and queues
 
-### Deployment Guides
+## Documentation
 
-PHP **8.2.35 or later** is required. Use the latest security patch for your PHP release series. Docker deployments must meet this requirement inside the container.
+### Deployment
 
-- [Deploy with 1Panel](./docs/en/installation/1panel.md)
+PHP **8.2.35 or later** is required inside the container. The published image
+already satisfies this.
+
 - [Deploy with Docker Compose](./docs/en/installation/docker-compose.md)
+- [Deploy with 1Panel](./docs/en/installation/1panel.md)
+- [Deploy with aaPanel + Docker](./docs/en/installation/aapanel-docker.md)
 - [Deploy with aaPanel](./docs/en/installation/aapanel.md)
-- [Deploy with aaPanel + Docker](./docs/en/installation/aapanel-docker.md) (Recommended)
 
-### Migration Guides
+### Development
+
+- [Plugin Development Guide](./docs/en/development/plugin-development-guide.md)
+- [Device limit design](./docs/en/development/device-limit.md)
+- [Performance notes](./docs/en/development/performance.md)
+
+### Existing installations
+
+- [Upgrade procedure](./docs/en/installation/docker-compose.md)
+- [Configuration migration](./docs/en/migration/config.md)
 - [Migrate from v2board dev](./docs/en/migration/v2board-dev.md)
 - [Migrate from v2board 1.7.4](./docs/en/migration/v2board-1.7.4.md)
 - [Migrate from v2board 1.7.3](./docs/en/migration/v2board-1.7.3.md)
 
-## 🛠️ Tech Stack
+Back up the database before any upgrade. Updating an existing Nboard
+installation and importing data from another panel are separate procedures.
 
-- Backend: Laravel 11 + Octane
-- Admin Panel: React + Shadcn UI + TailwindCSS
-- User Frontend: Vue3 + TypeScript + NaiveUI
-- Deployment: Docker + Docker Compose
-- Caching: Redis + Octane Cache
+## Tech Stack
 
-## 📷 Preview
-![Admin Preview](./docs/images/admin.png)
+- Backend: Laravel 12, Octane, PHP 8.2+
+- Admin console: React, Shadcn UI, TailwindCSS
+- User portal: Vue 3, TypeScript, NaiveUI
+- Storage: SQLite or MySQL; Redis for cache and queues
+- Deployment: Docker and Docker Compose
 
-![User Preview](./docs/images/user.png)
+## Disclaimer
 
-## ⚠️ Disclaimer
+This software is provided under the MIT License without warranty. Operators are
+responsible for complying with the laws and regulations that apply to their own
+deployment and for the security of the data they store.
 
-This project is for learning and communication purposes only. Users are responsible for any consequences of using this project.
+## Contributing
 
-## ❤️ Support The Project
+Issues and pull requests are welcome.
 
-If this project has helped you, donations are appreciated. They help support ongoing maintenance and would make me very happy.
-
-TRC20: `TLypStEWsVrj6Wz9mCxbXffqgt5yz3Y4XB`
-
-## 🌟 Maintenance Notice
-
-This project is currently under light maintenance. We will:
-- Fix critical bugs and security issues
-- Review and merge important pull requests
-- Provide necessary updates for compatibility
-
-However, new feature development may be limited.
-
-## 🔔 Important Notes
-
-1. Restart required after modifying admin path:
-```bash
-docker compose restart
-```
-
-2. For aaPanel installations, restart the Octane daemon process
-
-## 🤝 Contributing
-
-Issues and Pull Requests are welcome to help improve the project.
-
-## 📈 Star History
+## Star History
 
 [![Stargazers over time](https://starchart.cc/ipevel/nboard.svg)](https://starchart.cc/ipevel/nboard)

@@ -140,7 +140,7 @@ class NboardInstall extends Command
             ;
             $email = !empty($adminAccount) ? $adminAccount : text(
                 label: '请输入管理员账号',
-                default: 'admin@demo.com',
+                default: '',
                 required: true,
                 validate: fn(string $email): ?string => match (true) {
                     !filter_var($email, FILTER_VALIDATE_EMAIL) => '请输入有效的邮箱地址.',

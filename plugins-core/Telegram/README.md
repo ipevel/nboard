@@ -1,6 +1,6 @@
 # Telegram 插件
 
-NBoard 的 Telegram Bot 插件，提供用户账号绑定、流量查询、订阅链接获取等功能。
+Nboard 的 Telegram Bot 插件，提供用户账号绑定、流量查询、订阅链接获取等功能。
 
 ## 功能特性
 
@@ -19,7 +19,7 @@ NBoard 的 Telegram Bot 插件，提供用户账号绑定、流量查询、订�
 
 ### `/bind` - 绑定账号
 
-绑定用户的 NBoard 账号到 Telegram。
+绑定用户的 Nboard 账号到 Telegram。
 
 ```
 /bind [订阅链接]
@@ -35,7 +35,7 @@ NBoard 的 Telegram Bot 插件，提供用户账号绑定、流量查询、订�
 
 ### `/unbind` - 解绑账号
 
-解绑当前 Telegram 账号与 NBoard 账号的关联。
+解绑当前 Telegram 账号与 Nboard 账号的关联。
 
 ## 配置选项
 

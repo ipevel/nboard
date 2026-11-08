@@ -17,11 +17,10 @@ systemctl start docker
 
 ### 2. Deployment Steps
 
-1. Clone the `compose` branch (it ships `compose.sample.yaml` and the other `compose.*.sample.yaml` variants):
+1. Clone the `compose` branch (it ships `compose.yaml` plus the `compose.*.sample.yaml` variants):
    ```bash
-   git clone -b compose --depth 1 https://github.com/ipevel/nboard
-   cd Nboard
-   cp compose.sample.yaml compose.yaml
+   git clone -b compose --depth 1 https://github.com/ipevel/nboard.git
+   cd nboard
    ```
 
 2. Install database:  
@@ -31,7 +30,7 @@ systemctl start docker
 docker compose run -it --rm \
     -e ENABLE_SQLITE=true \
     -e ENABLE_REDIS=true \
-    -e ADMIN_ACCOUNT=admin@demo.com \
+    -e ADMIN_ACCOUNT=admin@example.com \
     nboard php artisan nboard:install
 ```
 - Custom configuration installation (Advanced users)
@@ -39,16 +38,16 @@ docker compose run -it --rm \
 docker compose run -it --rm nboard php artisan nboard:install
 ```
 > Please save the admin dashboard URL, username, and password shown after installation
-> The repository ships **four** compose templates in the `compose` branch — pick the one matching your setup, copy it to `compose.yaml`, then run the install command:
+> The `compose` branch ships a ready-to-use `compose.yaml` plus **three** alternative templates — pick the one matching your setup, copy it over `compose.yaml`, then run the install command:
 >
 > | File | Network | When to use |
 > |------|---------|-------------|
-> | `compose.sample.yaml` | bridge + ports `7001:7001` | bare docker, custom reverse proxy, aaPanel + Docker (default) |
+> | `compose.yaml` | bridge + ports `7001:7001` | bare docker, custom reverse proxy, aaPanel + Docker (default, already in place) |
 > | `compose.host.sample.yaml` | `network_mode: host` | aaPanel native (openresty on host) |
 > | `compose.1panel.sample.yaml` | bridge + external `1panel-network` | 1Panel users (so the container can reach 1Panel-managed MySQL/Redis) |
 > | `compose.split.sample.yaml` | multi-container (web/horizon/ws-server/redis split) | K8s migration, advanced scaling |
 >
-> The local `compose.yaml` is gitignored so your edits survive `git pull` when you do clone the repo.
+> For example: `cp compose.split.sample.yaml compose.yaml`. Keep a copy of your edits before running `git pull`.
 
 3. Start services:
 ```bash
@@ -62,7 +61,7 @@ docker compose up -d
 ### 3. Version Updates
 
 ```bash
-cd Nboard
+cd nboard
 docker compose pull && docker compose up -d
 ```
 

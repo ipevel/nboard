@@ -1,4 +1,4 @@
-# NBoard Plugin Development Guide
+# Nboard Plugin Development Guide
 
 ## 📦 Plugin Structure
 
@@ -136,7 +136,7 @@ $enabled = $this->isPluginEnabled();
 
 ### Popular Hooks (Recommended to follow)
 
-NBoard has built-in hooks for many business-critical nodes. Plugin developers can flexibly extend through `filter` or `listen` methods. Here are the most commonly used and valuable hooks:
+Nboard has built-in hooks for many business-critical nodes. Plugin developers can flexibly extend through `filter` or `listen` methods. Here are the most commonly used and valuable hooks:
 
 | Hook Name                 | Type   | Typical Parameters       | Description      |
 | ------------------------- | ------ | ----------------------- | ---------------- |
@@ -681,7 +681,7 @@ Artisan::call('other-plugin:command', ['arg' => 'value']);
 
 ### Summary
 
-The plugin command system provides powerful extension capabilities for NBoard:
+The plugin command system provides powerful extension capabilities for Nboard:
 
 - 🚀 **Development Efficiency**: Quickly create management commands
 - 🔧 **Operational Convenience**: Automate daily operations
