@@ -145,10 +145,5 @@
     "traffic_reset.source.user_access": "用戶訪問",
     "traffic_reset.reset_success": "流量重置成功",
     "traffic_reset.reset_failed": "流量重置失敗，請查看日誌獲取詳細信息",
-    "traffic_reset.user_cannot_reset": "該用戶當前不能重置流量（用戶未激活或無有效套餐）",
-    "Not Found": "資源不存在",
-    "Invalid captcha purpose": "驗證碼使用場景不合法",
-    "Invalid captcha id": "驗證碼標識不合法",
-    "Too many requests": "請求過於頻繁，請稍後再試",
-    "Image captcha requires the GD extension": "圖片驗證碼需要 GD 擴展支持"
+    "traffic_reset.user_cannot_reset": "該用戶當前不能重置流量（用戶未激活或無有效套餐）"
 }

@@ -1,5 +1,5 @@
-window.XBOARD_TRANSLATIONS = window.XBOARD_TRANSLATIONS || {};
-window.XBOARD_TRANSLATIONS['ru-RU'] = {
+window.NBOARD_TRANSLATIONS = window.NBOARD_TRANSLATIONS || {};
+window.NBOARD_TRANSLATIONS['ru-RU'] = {
   "giftCard": {
     "title": "Управление подарочными картами",
     "description": "Управление шаблонами подарочных карт, кодами активации и записями об использовании.",
@@ -1052,8 +1052,7 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
             "options": {
               "recaptcha": "Google reCAPTCHA v2",
               "recaptcha-v3": "Google reCAPTCHA v3",
-              "turnstile": "Cloudflare Turnstile",
-              "image": "Графическая капча"
+              "turnstile": "Cloudflare Turnstile"
             }
           },
           "recaptcha": {

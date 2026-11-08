@@ -1,5 +1,5 @@
-window.XBOARD_TRANSLATIONS = window.XBOARD_TRANSLATIONS || {};
-window.XBOARD_TRANSLATIONS['en-US'] = {
+window.NBOARD_TRANSLATIONS = window.NBOARD_TRANSLATIONS || {};
+window.NBOARD_TRANSLATIONS['en-US'] = {
   "giftCard": {
     "title": "Gift Card Management",
     "description": "Manage gift card templates, redemption codes, and usage records.",
@@ -1110,8 +1110,7 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
             "options": {
               "recaptcha": "Google reCAPTCHA v2",
               "recaptcha-v3": "Google reCAPTCHA v3",
-              "turnstile": "Cloudflare Turnstile",
-              "image": "Image captcha"
+              "turnstile": "Cloudflare Turnstile"
             }
           },
           "recaptcha": {
@@ -3462,7 +3461,7 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
   },
   "theme": {
     "title": "Theme Configuration",
-    "description": "Theme configuration, including theme colors, font sizes, etc. If you deploy Nboard in a front-end and back-end separated way, theme configuration will not take effect.",
+    "description": "Theme configuration, including theme colors, font sizes, etc. If you deploy V2board in a front-end and back-end separated way, theme configuration will not take effect.",
     "upload": {
       "button": "Upload Theme",
       "title": "Upload Theme",

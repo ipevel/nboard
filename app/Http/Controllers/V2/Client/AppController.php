@@ -84,7 +84,7 @@ class AppController extends Controller
                 'is_invite_force' => (int) admin_setting('invite_force', 0), // 是否强制邀请码 (0/1)
                 'email_whitelist_suffix' => (int) admin_setting('email_whitelist_suffix', 0), // 邮箱白名单后缀 (0/1)
                 'is_captcha' => (int) admin_setting('captcha_enable', 1), // 是否开启验证码 (0/1)
-                'captcha_type' => admin_setting('captcha_type', 'recaptcha'), // 验证码类型 (recaptcha/turnstile/recaptcha-v3/image)
+                'captcha_type' => admin_setting('captcha_type', 'recaptcha'), // 验证码类型 (recaptcha/turnstile)
                 'recaptcha_site_key' => admin_setting('recaptcha_site_key', '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'), // reCAPTCHA 站点密钥
                 'recaptcha_v3_site_key' => admin_setting('recaptcha_v3_site_key', '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'), // reCAPTCHA v3 站点密钥
                 'recaptcha_v3_score_threshold' => (float) admin_setting('recaptcha_v3_score_threshold', 0.5), // reCAPTCHA v3 分数阈值

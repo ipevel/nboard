@@ -1,5 +1,5 @@
-window.XBOARD_TRANSLATIONS = window.XBOARD_TRANSLATIONS || {};
-window.XBOARD_TRANSLATIONS['zh-CN'] = {
+window.NBOARD_TRANSLATIONS = window.NBOARD_TRANSLATIONS || {};
+window.NBOARD_TRANSLATIONS['zh-CN'] = {
   "giftCard": {
     "title": "礼品卡管理",
     "description": "在这里可以管理礼品卡模板、兑换码和使用记录等功能。",
@@ -1020,8 +1020,7 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
             "options": {
               "recaptcha": "Google reCAPTCHA v2",
               "recaptcha-v3": "Google reCAPTCHA v3",
-              "turnstile": "Cloudflare Turnstile",
-              "image": "图片验证码"
+              "turnstile": "Cloudflare Turnstile"
             }
           },
           "recaptcha": {
@@ -3477,7 +3476,7 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
   },
   "theme": {
     "title": "主题配置",
-    "description": "主题配置，包括主题色、字体大小等。如果你采用前后分离的方式部署Nboard，那么主题配置将不会生效。",
+    "description": "主题配置，包括主题色、字体大小等。如果你采用前后分离的方式部署V2board，那么主题配置将不会生效。",
     "upload": {
       "button": "上传主题",
       "title": "上传主题",
