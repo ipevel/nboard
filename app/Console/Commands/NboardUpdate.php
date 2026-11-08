@@ -8,14 +8,14 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
 use App\Services\Plugin\PluginManager;
 
-class XboardUpdate extends Command
+class NboardUpdate extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'xboard:update';
+    protected $signature = 'nboard:update';
 
     /**
      * The console command description.

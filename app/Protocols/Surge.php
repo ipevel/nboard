@@ -31,7 +31,7 @@ class Surge extends AbstractProtocol
         $servers = $this->servers;
         $user = $this->user;
 
-        $appName = admin_setting('app_name', 'Nboard');
+        $appName = admin_setting('app_name', 'NBoard');
 
         $proxies = '';
         $proxyGroup = '';

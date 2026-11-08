@@ -1,10 +1,9 @@
 {
-    "name": "ipevel/nboard",
+    "name": "nboard/nboard",
     "type": "project",
-    "description": "A Laravel-based panel for managing proxy service subscriptions, nodes and billing.",
+    "description": "nboard is a proxy protocol manage.",
     "keywords": [
         "nboard",
-        "panel",
         "v2ray",
         "shadowsocks",
         "trojan",

@@ -128,28 +128,19 @@ redis_reachable() {
     esac
 }
 
-if [ ! -s /www/.env ] || ! grep -qE '^INSTALLED=(1|true)$' /www/.env || echo " $* " | grep -q ' xboard:install '; then
-    echo "[entrypoint] Skipping xboard:update (not yet installed or running xboard:install)."
+if [ ! -s /www/.env ] || ! grep -qE '^INSTALLED=(1|true)$' /www/.env || echo " $* " | grep -q ' nboard:install '; then
+    echo "[entrypoint] Skipping nboard:update (not yet installed or running nboard:install)."
 else
     if redis_reachable; then
-        echo "[entrypoint] Running xboard:update (redis reachable, real drivers)..."
-        php /www/artisan xboard:update --no-interaction || \
-            echo "[entrypoint] WARNING: xboard:update failed; continuing so supervisor can boot anyway." >&2
+        echo "[entrypoint] Running nboard:update (redis reachable, real drivers)..."
+        php /www/artisan nboard:update --no-interaction || \
+            echo "[entrypoint] WARNING: nboard:update failed; continuing so supervisor can boot anyway." >&2
     else
-        echo "[entrypoint] Running xboard:update (redis not yet up, using array/sync drivers)..."
+        echo "[entrypoint] Running nboard:update (redis not yet up, using array/sync drivers)..."
         CACHE_DRIVER=array QUEUE_CONNECTION=sync SESSION_DRIVER=array \
-            php /www/artisan xboard:update --no-interaction || \
-            echo "[entrypoint] WARNING: xboard:update failed; continuing so supervisor can boot anyway." >&2
+            php /www/artisan nboard:update --no-interaction || \
+            echo "[entrypoint] WARNING: nboard:update failed; continuing so supervisor can boot anyway." >&2
     fi
-fi
-
-# Rebuild the compiled views on every boot. The theme bundle carries a content hash in
-# its filename, so a previous release's compiled view would keep pointing the entry HTML
-# at a bundle that no longer exists: a 404 for the app entry, a blank page for the user,
-# and a perfectly healthy API. Clearing here keeps the shell and the shipped assets in step.
-if grep -qE '^INSTALLED=(1|true)$' /www/.env 2>/dev/null; then
-    php /www/artisan view:clear >/dev/null 2>&1 || \
-        echo "[entrypoint] WARNING: view:clear failed; a stale view cache may break the front end." >&2
 fi
 
 echo "[entrypoint] Starting services (caddy=${ENABLE_CADDY} web=${ENABLE_WEB} horizon=${ENABLE_HORIZON} ws=${ENABLE_WS_SERVER})..."

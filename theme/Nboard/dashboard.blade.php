@@ -6,10 +6,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no" />
   <title>{{$title}}</title>
   <script type="module" crossorigin src="/theme/{{$theme}}/assets/umi.js"></script>
-<link rel="icon" type="image/png" sizes="32x32" href="/theme/{{$theme}}/assets/images/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/theme/{{$theme}}/assets/images/favicon-16x16.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="/theme/{{$theme}}/assets/images/apple-touch-icon.png">
-  <style id="nboard-logo-size">img[src*="/logo"]{max-width:96px;max-height:96px;width:auto;height:auto;object-fit:contain}</style></head>
+</head>
 
 <body>
 
@@ -33,7 +30,7 @@
         'zh-TW',
         'fa-IR'
       ],
-      logo: '{{ $logo ?: "/theme/{$theme}/assets/images/logo.png" }}'
+      logo: '{{$logo}}'
     }
   </script>
   <div id="app"></div>

@@ -42,14 +42,14 @@ class CommController extends Controller
             return $this->fail([400, __('Email verification code has been sent, please request again later')]);
         }
         $code = rand(100000, 999999);
-        $subject = admin_setting('app_name', 'Nboard') . __('Email verification code');
+        $subject = admin_setting('app_name', 'NBoard') . __('Email verification code');
 
         SendEmailJob::dispatch([
             'email' => $email,
             'subject' => $subject,
             'template_name' => 'verify',
             'template_value' => [
-                'name' => admin_setting('app_name', 'Nboard'),
+                'name' => admin_setting('app_name', 'NBoard'),
                 'code' => $code,
                 'url' => admin_setting('app_url')
             ]
