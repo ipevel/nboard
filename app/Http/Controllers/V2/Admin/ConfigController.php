@@ -40,7 +40,7 @@ class ConfigController extends Controller
             'subject' => 'This is nboard test email',
             'template_name' => 'notify',
             'template_value' => [
-                'name' => admin_setting('app_name', 'Nboard'),
+                'name' => admin_setting('app_name', 'NBoard'),
                 'content' => 'This is nboard test email',
                 'url' => admin_setting('app_url')
             ]
@@ -107,8 +107,8 @@ class ConfigController extends Controller
                 'logo' => admin_setting('logo'),
                 'force_https' => (int) admin_setting('force_https', 0),
                 'stop_register' => (int) admin_setting('stop_register', 0),
-                'app_name' => admin_setting('app_name', 'Nboard'),
-                'app_description' => admin_setting('app_description', 'Nboard is best!'),
+                'app_name' => admin_setting('app_name', 'NBoard'),
+                'app_description' => admin_setting('app_description', 'NBoard is best!'),
                 'app_url' => admin_setting('app_url'),
                 'subscribe_url' => admin_setting('subscribe_url'),
                 'try_out_plan_id' => (int) admin_setting('try_out_plan_id', 0),

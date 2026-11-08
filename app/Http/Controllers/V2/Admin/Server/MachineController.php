@@ -202,7 +202,7 @@ class MachineController extends Controller
     private function buildInstallCommand(Request $request, ServerMachine $machine): string
     {
         $panelUrl = rtrim((string) (admin_setting('app_url') ?: $request->getSchemeAndHttpHost()), '/');
-        $installerUrl = 'https://raw.githubusercontent.com/ipevel/nboard-node/master/install.sh';
+        $installerUrl = 'https://raw.githubusercontent.com/ipevel/nboard-node/dev/install.sh';
 
         return sprintf(
             'curl -fsSL %s | sudo bash -s -- --mode machine --panel %s --token %s --machine-id %d',

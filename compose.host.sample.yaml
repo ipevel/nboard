@@ -1,6 +1,6 @@
 services:
   nboard:
-    image: ${NB_IMAGE:-ghcr.io/ipevel/nboard:latest}
+    image: ghcr.io/ipevel/nboard:latest
     restart: unless-stopped
     network_mode: host
     volumes:
@@ -9,11 +9,11 @@ services:
       - ./storage/logs:/www/storage/logs
       - ./storage/theme:/www/storage/theme
       - ./plugins:/www/plugins
-      - nboard-redis-data:/data
+      - redis-data:/data
     environment:
       - RESOURCE_PROFILE=balanced      # minimal | balanced | performance | auto
       - ENABLE_HORIZON=true
       - docker=true
 
 volumes:
-  nboard-redis-data:
+  redis-data:

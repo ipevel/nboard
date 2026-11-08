@@ -638,7 +638,7 @@ class UserController extends Controller
 
         $subject = $request->input('subject');
         $content = $request->input('content');
-        $appName = admin_setting('app_name', 'Nboard');
+        $appName = admin_setting('app_name', 'NBoard');
         $appUrl = admin_setting('app_url');
 
         $chunkSize = 1000;

@@ -11,8 +11,6 @@ COPY --from=composer:2.10.3 /usr/bin/composer /usr/local/bin/composer
 RUN CFLAGS="-O0" install-php-extensions pcntl && \
     CFLAGS="-O0 -g0" install-php-extensions bcmath
 
-RUN install-php-extensions gd
-
 RUN IPE_PROCESSOR_COUNT=2 install-php-extensions zip
 
 # Keep Redis independent of Alpine's package version to preserve RDB 14 compatibility.
@@ -36,7 +34,7 @@ RUN apk --no-cache add \
     adduser -S -G www -u 1000 www && \
     (getent group redis || addgroup -S redis) && \
     (getent passwd redis || adduser -S -G redis -H -h /data redis) && \
-    php -r 'foreach (["swoole", "pcntl", "posix", "bcmath", "pdo_mysql", "pdo_sqlite", "sockets", "zip", "igbinary", "redis", "gd"] as $extension) { \
+    php -r 'foreach (["swoole", "pcntl", "posix", "bcmath", "pdo_mysql", "pdo_sqlite", "sockets", "zip", "igbinary", "redis"] as $extension) { \
         if (!extension_loaded($extension)) { fwrite(STDERR, "Missing PHP extension: {$extension}\n"); exit(1); } \
     }'
 
@@ -59,7 +57,7 @@ RUN echo "Attempting to clone branch: ${BRANCH_NAME} from ${REPO_URL} with CACHE
 
 COPY .docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY .docker/caddy/Caddyfile /etc/caddy/Caddyfile
-COPY .docker/php/zz-xboard.ini /usr/local/etc/php/conf.d/zz-xboard.ini
+COPY .docker/php/zz-nboard.ini /usr/local/etc/php/conf.d/zz-nboard.ini
 
 RUN composer install --no-cache --no-dev --no-security-blocking \
     && php artisan storage:link \

@@ -111,7 +111,7 @@ class SingBox extends AbstractProtocol
 
     public function handle()
     {
-        $appName = admin_setting('app_name', 'Nboard');
+        $appName = admin_setting('app_name', 'NBoard');
         $this->config = $this->loadConfig();
         $this->buildOutbounds();
         $this->buildRule();

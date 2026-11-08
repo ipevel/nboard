@@ -21,7 +21,7 @@ services:
       - ./.docker/caddy/Caddyfile.split:/etc/caddy/Caddyfile:ro
 
   web:
-    image: ${NB_IMAGE:-ghcr.io/ipevel/nboard:latest}
+    image: ghcr.io/ipevel/nboard:latest
     restart: unless-stopped
     depends_on:
       - redis
@@ -31,8 +31,6 @@ services:
       - ./storage/logs:/www/storage/logs
       - ./storage/theme:/www/storage/theme
       - ./plugins:/www/plugins
-      # Keep the front-end theme editable without rebuilding the image.
-      - ./theme:/www/theme
     environment:
       docker: "true"
       ENABLE_CADDY: "false"
@@ -40,7 +38,7 @@ services:
       ENABLE_WS_SERVER: "false"
 
   horizon:
-    image: ${NB_IMAGE:-ghcr.io/ipevel/nboard:latest}
+    image: ghcr.io/ipevel/nboard:latest
     restart: unless-stopped
     depends_on:
       - redis
@@ -52,7 +50,7 @@ services:
       ENABLE_WS_SERVER: "false"
 
   ws-server:
-    image: ${NB_IMAGE:-ghcr.io/ipevel/nboard:latest}
+    image: ghcr.io/ipevel/nboard:latest
     restart: unless-stopped
     depends_on:
       - redis
@@ -69,7 +67,7 @@ services:
     restart: unless-stopped
     command: redis-server --unixsocket /data/redis.sock --unixsocketperm 777 --save 900 1 --save 300 10 --save 60 10000
     volumes:
-      - nboard-redis-data:/data
+      - redis-data:/data
 
 volumes:
-  nboard-redis-data:
+  redis-data:

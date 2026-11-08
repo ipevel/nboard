@@ -75,7 +75,7 @@ class UpdateService
             // Get remote latest commits
             $response = Http::withHeaders([
                 'Accept' => 'application/vnd.github.v3+json',
-                'User-Agent' => 'Nboard-Update-Checker'
+                'User-Agent' => 'NBoard-Update-Checker'
             ])->get(self::GITHUB_API_URL . '?per_page=50');
 
             if ($response->successful()) {

@@ -2,109 +2,108 @@
 
 <div align="center">
 
-![PHP](https://img.shields.io/badge/PHP-8.2%2B-777BB4.svg)
-![MySQL](https://img.shields.io/badge/Database-MySQL-4479A1.svg)
-![Redis](https://img.shields.io/badge/Cache-Redis-DC382D.svg)
+[![Telegram](https://img.shields.io/badge/Telegram-Channel-blue)](https://t.me/NboardOfficial)
+![PHP](https://img.shields.io/badge/PHP-8.2.35+-green.svg)
+![MySQL](https://img.shields.io/badge/MySQL-5.7+-blue.svg)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 </div>
 
-## Introduction
+## 📖 Introduction
 
-Nboard is a service panel written in PHP 8.2 on Laravel 12. It manages user accounts, subscription plans, orders, traffic accounting and the proxy nodes that serve them, and it exposes both a user portal and an administration console.
+Nboard is a modern panel system built on Laravel 11, focusing on providing a clean and efficient user experience.
 
-Subscriptions are rendered on demand in eleven client formats, node state is synchronised over a WebSocket channel, and background work runs on Laravel Horizon queues. The panel ships with Docker and Compose templates, and supports SQLite, MySQL and PostgreSQL as the primary datastore.
+## ✨ Features
 
-## Features
+- 🚀 Built with Laravel 12 + Octane for significant performance gains
+- 🎨 Redesigned admin interface (React + Shadcn UI)
+- 📱 Modern user frontend (Vue3 + TypeScript)
+- 🐳 Ready-to-use Docker deployment solution
+- 🎯 Optimized system architecture for better maintainability
 
-- **Account and billing core** — plans, orders, coupons, gift cards, invite codes and commission logs, with renewal, reset and traffic-reset handling.
-- **Subscription delivery** — the same subscription is rendered for Clash, ClashMeta, SingBox, Stash, Surge, Surfboard, Shadowrocket, QuantumultX, Loon, Shadowsocks and the general URI list (`app/Protocols`).
-- **Node management** — nodes, node groups, routes and per-node traffic records, plus named machine registrations with CPU, memory, disk and network load history.
-- **Real-time node sync** — a Workerman WebSocket server (`php artisan ws-server start --port 8076`) pushes configuration changes to nodes instead of waiting for a poll cycle.
-- **Background processing** — Laravel Horizon supervisors for order handling, traffic fetching, statistics, mail, Telegram delivery, user-activity sync and node sync.
-- **Payment and messaging plugins** — bundled plugins for Alipay F2F, BTCPay, CoinPayments, Coinbase, Epay and Mgate, plus a Telegram bot for account binding, traffic queries and subscription retrieval.
-- **Theming** — themes are directories containing a `dashboard.blade.php` entry point, an asset bundle and a `config.json` manifest that declares the colour scheme, background image and custom footer HTML. User-uploaded themes are supported alongside the bundled one.
-- **Administration console** — a separate single-page application served from `public/assets/admin`, backed by the JSON API registered under `/api/v2` and gated by the `admin` middleware.
-- **Seven UI locales** — `zh-CN`, `zh-TW`, `en-US`, `ja-JP`, `ko-KR`, `vi-VN` and `fa-IR`.
-- **Deployment** — a single image with embedded Caddy on port 7001, plus Compose templates for bridge networking, host networking, 1Panel and split (per-role) topologies.
-
-## Quick Start
-
-### Requirements
-
-- Docker Engine with the Compose v2 plugin
-- A host port for the panel (defaults to `7001`)
-
-Nothing else is needed on the machine: `init.sh` pulls the published image, so there is no PHP, Composer or Node build step.
-
-### One command
+## 🚀 Quick Start
 
 ```bash
-git clone https://github.com/ipevel/nboard.git
-cd nboard
-./init.sh
-```
-
-The script pulls `ghcr.io/ipevel/nboard:latest`, starts the stack, runs the installer against SQLite and the built-in Redis, waits for the panel to answer, then prints the site URL, the administration URL and the generated administrator credentials. Save those credentials when they appear — the password is shown once.
-
-Options:
-
-```bash
-./init.sh --port 8080                  # publish on another host port
-./init.sh --admin you@example.com      # choose the administrator address
-./init.sh --build                      # build the image locally instead of pulling
-./init.sh --install-docker             # install Docker Engine + Compose v2 first
-```
-
-### Re-running
-
-`init.sh` is idempotent. Once `.env` carries the `INSTALLED` flag it skips the installer and only refreshes the container. To update later, run `bash update.sh` — see [Updating](#updating).
-
-### Manual Compose
-
-To drive the stack yourself:
-
-```bash
-cp compose.sample.yaml compose.yaml
-touch .env
-docker compose run --rm \
-    -e ENABLE_SQLITE=1 \
-    -e ENABLE_REDIS=1 \
-    -e ADMIN_ACCOUNT=you@example.com \
-    nboard php artisan xboard:install
+git clone -b compose --depth 1 https://github.com/ipevel/nboard && \
+cd Nboard && \
+docker compose run -it --rm \
+    -e ENABLE_SQLITE=true \
+    -e ENABLE_REDIS=true \
+    -e ADMIN_ACCOUNT=admin@demo.com \
+    nboard php artisan nboard:install && \
 docker compose up -d
 ```
 
-The container serves the panel through its embedded Caddy process on the published port. Keep `.env` in place between restarts; the installer rewrites it in place. MySQL and PostgreSQL installs use the same flow with the corresponding environment variables instead of `ENABLE_SQLITE`.
+> After installation, visit: http://SERVER_IP:7001  
+> ⚠️ Make sure to save the admin credentials shown during installation
 
-## Updating
+## 📖 Documentation
 
-`update.sh` covers both deployment shapes and picks the right one by itself:
+### 🔄 Upgrade Notice
+> 🚨 **Important:** This version involves significant changes. Please strictly follow the upgrade documentation and backup your database before upgrading. Note that upgrading and migration are different processes, do not confuse them.
 
-| Deployment | Detected by | What the script does |
-| --- | --- | --- |
-| Git deployment | a `.git` directory | `git fetch`, hard reset to `origin/master`, refresh Composer dependencies, run `php artisan xboard:update` |
-| Compose only | a compose file and no `.git` | pull the published image, recreate the panel services, wait for the panel to answer |
+### Development Guides
+- [Plugin Development Guide](./docs/en/development/plugin-development-guide.md) - Complete guide for developing NBoard plugins
 
-Run it from the deployment directory:
+### Deployment Guides
 
+PHP **8.2.35 or later** is required. Use the latest security patch for your PHP release series. Docker deployments must meet this requirement inside the container.
+
+- [Deploy with 1Panel](./docs/en/installation/1panel.md)
+- [Deploy with Docker Compose](./docs/en/installation/docker-compose.md)
+- [Deploy with aaPanel](./docs/en/installation/aapanel.md)
+- [Deploy with aaPanel + Docker](./docs/en/installation/aapanel-docker.md) (Recommended)
+
+### Migration Guides
+- [Migrate from v2board dev](./docs/en/migration/v2board-dev.md)
+- [Migrate from v2board 1.7.4](./docs/en/migration/v2board-1.7.4.md)
+- [Migrate from v2board 1.7.3](./docs/en/migration/v2board-1.7.3.md)
+
+## 🛠️ Tech Stack
+
+- Backend: Laravel 11 + Octane
+- Admin Panel: React + Shadcn UI + TailwindCSS
+- User Frontend: Vue3 + TypeScript + NaiveUI
+- Deployment: Docker + Docker Compose
+- Caching: Redis + Octane Cache
+
+## 📷 Preview
+![Admin Preview](./docs/images/admin.png)
+
+![User Preview](./docs/images/user.png)
+
+## ⚠️ Disclaimer
+
+This project is for learning and communication purposes only. Users are responsible for any consequences of using this project.
+
+## ❤️ Support The Project
+
+If this project has helped you, donations are appreciated. They help support ongoing maintenance and would make me very happy.
+
+TRC20: `TLypStEWsVrj6Wz9mCxbXffqgt5yz3Y4XB`
+
+## 🌟 Maintenance Notice
+
+This project is currently under light maintenance. We will:
+- Fix critical bugs and security issues
+- Review and merge important pull requests
+- Provide necessary updates for compatibility
+
+However, new feature development may be limited.
+
+## 🔔 Important Notes
+
+1. Restart required after modifying admin path:
 ```bash
-bash update.sh              # update the panel
-bash update.sh --build      # build the image from local sources instead of pulling
-bash update.sh --dry-run    # print the commands without running them
+docker compose restart
 ```
 
-In compose mode the script reads the image from `NB_IMAGE` (environment or `.env`) and falls back to `ghcr.io/ipevel/nboard:latest`. If the compose file references a different local tag, the script re-points that tag at the freshly pulled image instead of rewriting the compose file. It then recreates the services, probes `http://127.0.0.1:${PORT:-7001}` for up to three minutes, and prints the image IDs and container state before and after the update.
+2. For aaPanel installations, restart the Octane daemon process
 
-`--build` expects a source tree and runs `docker build` in the script directory.
+## 🤝 Contributing
 
-Environment variables:
+Issues and Pull Requests are welcome to help improve the project.
 
-| Variable | Default | Purpose |
-| --- | --- | --- |
-| `NB_IMAGE` | `ghcr.io/ipevel/nboard:latest` | Image reference to pull or build |
-| `PORT` | `7001` | Local port used by the health check |
+## 📈 Star History
 
-The script never writes `.env`, `plugins/`, `storage/` or `.docker/.data`. Back up `.env` and the database before updating.
-
-Released under the [MIT License](LICENSE). Copyright (c) 2026 ipevel.
+[![Stargazers over time](https://starchart.cc/ipevel/nboard.svg)](https://starchart.cc/ipevel/nboard)

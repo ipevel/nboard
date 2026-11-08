@@ -74,7 +74,7 @@ git clone -b compose --depth 1 https://github.com/ipevel/nboard.git ./
 cp compose.host.sample.yaml compose.yaml
 
 # Install dependencies and initialize
-docker compose run -it --rm nboard php artisan xboard:install
+docker compose run -it --rm nboard php artisan nboard:install
 ```
 > ⚠️ Please save the admin dashboard URL, username, and password shown after installation
 
@@ -109,9 +109,9 @@ location ^~ / {
 docker compose pull && docker compose up -d
 ```
 
-The container always runs `php artisan xboard:update` (migrate + plugin install + version cache + theme refresh) on boot, so no extra command is required.
+The container always runs `php artisan nboard:update` (migrate + plugin install + version cache + theme refresh) on boot, so no extra command is required.
 
-> **Using a `compose.yaml` from before 2026-04-19?** That template did not auto-run `xboard:update` on container start, so use the following command to upgrade instead:
+> **Using a `compose.yaml` from before 2026-04-19?** That template did not auto-run `nboard:update` on container start, so use the following command to upgrade instead:
 > ```bash
 > docker compose pull && docker compose run -it --rm web sh update.sh && docker compose up -d
 > ```

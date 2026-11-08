@@ -455,8 +455,8 @@ class PluginManager
     protected function checkDependencies(array $requires): bool
     {
         foreach ($requires as $package => $version) {
-            if ($package === 'xboard') {
-                // 检查 nboard 版本
+            if ($package === 'nboard') {
+                // 检查nboard版本
                 // 实现版本比较逻辑
             }
         }

@@ -20,7 +20,7 @@ systemctl start docker
 1. Clone the `compose` branch (it ships `compose.sample.yaml` and the other `compose.*.sample.yaml` variants):
    ```bash
    git clone -b compose --depth 1 https://github.com/ipevel/nboard
-   cd nboard
+   cd Nboard
    cp compose.sample.yaml compose.yaml
    ```
 
@@ -32,11 +32,11 @@ docker compose run -it --rm \
     -e ENABLE_SQLITE=true \
     -e ENABLE_REDIS=true \
     -e ADMIN_ACCOUNT=admin@demo.com \
-    nboard php artisan xboard:install
+    nboard php artisan nboard:install
 ```
 - Custom configuration installation (Advanced users)
 ```bash
-docker compose run -it --rm nboard php artisan xboard:install
+docker compose run -it --rm nboard php artisan nboard:install
 ```
 > Please save the admin dashboard URL, username, and password shown after installation
 > The repository ships **four** compose templates in the `compose` branch — pick the one matching your setup, copy it to `compose.yaml`, then run the install command:
@@ -62,15 +62,15 @@ docker compose up -d
 ### 3. Version Updates
 
 ```bash
-cd nboard
+cd Nboard
 docker compose pull && docker compose up -d
 ```
 
-The container always runs `php artisan xboard:update` (migrate + plugin install + version cache + theme refresh) on boot, so no extra command is required.
+The container always runs `php artisan nboard:update` (migrate + plugin install + version cache + theme refresh) on boot, so no extra command is required.
 
-> **Using a `compose.yaml` from before 2026-04-19?** That template did not auto-run `xboard:update` on container start, so use the following command to upgrade instead:
+> **Using a `compose.yaml` from before 2026-04-19?** That template did not auto-run `nboard:update` on container start, so use the following command to upgrade instead:
 > ```bash
-> docker compose pull && docker compose run -it --rm web php artisan xboard:update && docker compose up -d
+> docker compose pull && docker compose run -it --rm web php artisan nboard:update && docker compose up -d
 > ```
 
 For security, upgrade to an image running **PHP 8.2.35 or later** with the latest security fixes for its PHP release series.

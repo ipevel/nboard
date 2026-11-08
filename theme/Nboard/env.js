@@ -1,10 +1,10 @@
-window.routerBase = '/'
+window.routerBase = 'http://127.0.0.1:8000/'
 window.settings = {
   // 站点名称
   title: 'Nboard',
   // 主题色
   theme: {
-    color: 'blue', //可选default、blue、black、、darkblue
+    color: 'anyway', //可选default、blue、black、、darkblue
   },
   // 站点描述
   description: 'Nboard',

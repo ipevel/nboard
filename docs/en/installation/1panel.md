@@ -78,7 +78,7 @@ The file is gitignored so your edits survive `git pull`. See [docker-compose.md]
 
 5. Initialize Installation:
 ```bash
-docker compose run -it --rm nboard php artisan xboard:install
+docker compose run -it --rm nboard php artisan nboard:install
 ```
 
 ⚠️ Important Configuration Notes:
@@ -116,11 +116,11 @@ docker compose up -d
 docker compose pull && docker compose up -d
 ```
 
-The container always runs `php artisan xboard:update` (migrate + plugin install + version cache + theme refresh) on boot, so no extra command is required.
+The container always runs `php artisan nboard:update` (migrate + plugin install + version cache + theme refresh) on boot, so no extra command is required.
 
-> **Using a `compose.yaml` from before 2026-04-19?** That template did not auto-run `xboard:update` on container start, so use the following command to upgrade instead:
+> **Using a `compose.yaml` from before 2026-04-19?** That template did not auto-run `nboard:update` on container start, so use the following command to upgrade instead:
 > ```bash
-> docker compose pull && docker compose run -it --rm web php artisan xboard:update && docker compose up -d
+> docker compose pull && docker compose run -it --rm web php artisan nboard:update && docker compose up -d
 > ```
 
 ## Important Notes

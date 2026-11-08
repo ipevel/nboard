@@ -17,14 +17,14 @@ use function Laravel\Prompts\text;
 use function Laravel\Prompts\note;
 use function Laravel\Prompts\select;
 
-class XboardInstall extends Command
+class NboardInstall extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'xboard:install';
+    protected $signature = 'nboard:install';
 
     /**
      * The console command description.
@@ -55,8 +55,11 @@ class XboardInstall extends Command
             $enableSqlite = getenv('ENABLE_SQLITE', false);
             $enableRedis = getenv('ENABLE_REDIS', false);
             $adminAccount = getenv('ADMIN_ACCOUNT', false);
-            $this->info('  Nboard 安装向导');
-            $this->line('  ----------------------------------------');
+            $this->info("__    __ ____                      _  ");
+            $this->info("\ \  / /| __ )  ___   __ _ _ __ __| | ");
+            $this->info(" \ \/ / | __ \ / _ \ / _` | '__/ _` | ");
+            $this->info(" / /\ \ | |_) | (_) | (_| | | | (_| | ");
+            $this->info("/_/  \_\|____/ \___/ \__,_|_|  \__,_| ");
             if (
                 (File::exists(base_path() . '/.env') && $this->getEnvValue('INSTALLED'))
                 || (getenv('INSTALLED', false) && $isDocker)
@@ -137,7 +140,7 @@ class XboardInstall extends Command
             ;
             $email = !empty($adminAccount) ? $adminAccount : text(
                 label: '请输入管理员账号',
-                default: '',
+                default: 'admin@demo.com',
                 required: true,
                 validate: fn(string $email): ?string => match (true) {
                     !filter_var($email, FILTER_VALIDATE_EMAIL) => '请输入有效的邮箱地址.',
